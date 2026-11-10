@@ -1,82 +1,70 @@
-# Template de API RESTful (FastAPI + SQLite) - Monolito (Projeto A3)
+# API de Registros: do Monolito para Multicamadas
 
-> 💡 **AVISO IMPORTANTE:** Este repositório contém a estrutura base desenvolvida para o **Projeto A3** em formato **monolítico**. Todo o ciclo de vida da aplicação — conexão com o banco, estruturação de dados e roteamento — está concentrado em um único arquivo (`main.py`). Ao final deste documento, há um guia prático de como evoluir esta base para o **Projeto A4**, adotando uma arquitetura em múltiplas camadas.
+**Nome:** Gustavo Teixeira Rocha Araujo
+**Disciplina/Atividade:** Do monolito para multicamadas
+**Repositório original:** https://github.com/fvaladares/ApitUniBHSD202602
 
-Esta é uma API educacional desenvolvida em Python com o framework **FastAPI** e banco de dados relacional **SQLite**. Ela atende aos requisitos iniciais de persistência de dados e documentação automática, servindo como backend para integração com a UC de Usabilidade.
+## 1. Ponto de partida
 
-## 🛠 Tecnologias e Pré-requisitos
+API REST (FastAPI + SQLite) com CRUD de `/registros`, toda concentrada em um único arquivo (`App.py`): conexão com o banco, modelos Pydantic e rotas.
 
-* **Python 3.8+**
-* **uv** (Gerenciador de pacotes e projetos ultrarrápido para Python)
-* **FastAPI** (Framework web de alta performance)
-* **Uvicorn** (Servidor web ASGI)
-* **SQLite** (Banco de dados relacional nativo do Python)
+## 2. O que foi feito
 
-## ⚙️ Como configurar e executar (usando `uv`)
+1. Fork do repositório original e criação da branch `multicamadas`.
+2. Execução do monolito e teste de todas as rotas no Swagger (`/docs`), para ter uma referência do comportamento original.
+3. Divisão do código em camadas, sem alterar as regras nem as rotas:
 
-1. Clone este repositório para o seu ambiente local (ou abra no GitHub Codespaces).
-2. No terminal, dentro da pasta do projeto, instale o **uv**
-```bash
-pip install uv
+| Arquivo | Responsabilidade | O que foi movido |
+|---|---|---|
+| `database.py` | Acesso ao banco | `get_db_connection` (renomeada `conectar_banco`) e a criação da tabela (`criar_tabelas`) |
+| `models.py` | Contratos de dados | Classes `RegistroBase` e `RegistroResponse` |
+| `main.py` | Rotas HTTP | `FastAPI()` e os endpoints, que importam `database` e `models` |
+
+4. Renomeação de `App.py` para `main.py`, seguindo o guia do README original.
+5. Inclusão de `.gitignore` para não versionar `banco_a3.db`, `__pycache__/` e `.venv/`.
+
+## 3. Estrutura final
+
 ```
-3. No terminal, dentro da pasta do projeto, inicialize o ambiente com o **uv** (isso criará o `pyproject.toml` e preparará o ambiente virtual isolado):
-   ```bash
-   uv init
-   ```
-4. Adicione as dependências do projeto. O **uv** fará o download e a instalação em frações de segundo:
-   ```bash
-   uv add fastapi uvicorn
-   ```
-5. Inicie o servidor local da API utilizando o comando `run` do **uv**:
-   ```bash
-   uv run uvicorn main:app --reload
-   ```
-   *(Na primeira execução, o banco de dados será criado automaticamente na mesma pasta).*
+.
+├── database.py
+├── models.py
+├── main.py
+├── pyproject.toml
+└── README.md
+```
 
-6. O servidor estará rodando em: `http://127.0.0.1:8000`
+## 4. Como executar
 
-## 📖 Documentação e Testes (Swagger UI)
+```
+pip install uv
+uv add fastapi uvicorn
+uv run uvicorn main:app --reload
+```
 
-A API possui documentação interativa gerada automaticamente. Você não precisa de ferramentas externas como Postman ou Insomnia para testar as rotas.
+Documentação interativa: `http://127.0.0.1:8000/docs`
 
-Com o servidor em execução, acesse no navegador:
-👉 **[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)**
+## 5. Endpoints (inalterados)
 
-## 🚀 Resumo dos Endpoints Disponíveis
+| Método | Rota | Resposta |
+|---|---|---|
+| POST | `/registros` | 201 ou 400 |
+| GET | `/registros` | 200 |
+| GET | `/registros/{id}` | 200 ou 404 |
+| PUT | `/registros/{id}` | 200 ou 404 |
+| DELETE | `/registros/{id}` | 200 ou 404 |
 
-A API implementa o CRUD completo. Todos os endpoints estão definidos no arquivo `main.py`:
+## 6. Validação
 
-* **POST `/registros`**: Cria um novo registro no banco (Status `201 Created` ou `400 Bad Request`).
-* **GET `/registros`**: Retorna a lista com todos os registros salvos (Status `200 OK`).
-* **GET `/registros/{id}`**: Busca os detalhes de um registro específico (Status `200 OK` ou `404 Not Found`).
-* **PUT `/registros/{id}`**: Atualiza os dados de um registro existente (Status `200 OK` ou `404 Not Found`).
-* **DELETE `/registros/{id}`**: Exclui um registro do banco de dados (Status `200 OK` ou `404 Not Found`).
+Todas as rotas foram testadas no Swagger antes e depois da refatoração, com o mesmo resultado.
 
----
+![POST 201](docs/prints/post-201.png)
+![GET 200](docs/prints/get-200.png)
+![PUT 200](docs/prints/put-200.png)
+![DELETE 200](docs/prints/delete-200.png)
+![GET 404](docs/prints/get-404.png)
 
-## 🏗️ Guia de Evolução: Do Monolito (A3) para Múltiplas Camadas (A4)
+## 7. Problemas encontrados
 
-Manter todo o código em um único arquivo (`main.py`) é excelente para o aprendizado inicial e testes rápidos, mas torna a manutenção difícil conforme o sistema cresce. 
-
-Para o **Projeto A4**, o grupo deverá refatorar este monolito em uma **arquitetura de múltiplas camadas**. Siga estes passos para organizar a casa:
-
-1. **Isole o Banco de Dados (`database.py`)**
-   * Crie um novo arquivo chamado `database.py`.
-   * Mova para ele toda a lógica de conexão com o SQLite (a criação da `engine`, do `cursor` ou a configuração do ORM que estiverem usando) e a função que cria as tabelas iniciais.
-   * *Analogia:* Este será o almoxarifado exclusivo do seu sistema.
-
-2. **Separe os Contratos de Dados (`models.py`)**
-   * Crie um arquivo `models.py`.
-   * Recorte do seu `main.py` todas as classes que herdam de `BaseModel` do Pydantic (como `RegistroCreate`, `RegistroResponse`, etc.) e cole neste novo arquivo.
-   * *Analogia:* Este arquivo será o setor de controle de qualidade, ditando o que pode entrar ou sair do sistema.
-
-3. **Limpe as Rotas (`main.py`)**
-   * O seu `main.py` agora deve ficar muito mais limpo.
-   * Mantenha apenas a inicialização do FastAPI (`app = FastAPI()`) e as funções de rota (os `@app.get`, `@app.post`, etc.).
-   * No topo do `main.py`, importe os módulos que você acabou de criar:
-     ```python
-     from database import conectar_banco, criar_tabelas
-     from models import RegistroCreate, RegistroResponse
-     ```
-
-Após essa divisão, seu código estará preparado para escalar, integrando facilmente novas funcionalidades de segurança, como um proxy reverso Nginx, de forma totalmente estruturada e profissional.
+- O README original citava `main.py`, mas o arquivo se chamava `App.py`; o comando de execução foi ajustado.
+- Os arquivos novos ficaram em uma subpasta duplicada no Codespaces; foram movidos para a raiz.
