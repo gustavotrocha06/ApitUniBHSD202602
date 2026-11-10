@@ -58,12 +58,6 @@ Documentação interativa: `http://127.0.0.1:8000/docs`
 
 Todas as rotas foram testadas no Swagger antes e depois da refatoração, com o mesmo resultado.
 
-![POST 201](docs/prints/post-201.png)
-![GET 200](docs/prints/get-200.png)
-![PUT 200](docs/prints/put-200.png)
-![DELETE 200](docs/prints/delete-200.png)
-![GET 404](docs/prints/get-404.png)
-
 ## 7. Problemas encontrados
 
 - O README original citava `main.py`, mas o arquivo se chamava `App.py`; o comando de execução foi ajustado.
