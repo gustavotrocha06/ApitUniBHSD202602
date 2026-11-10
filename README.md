@@ -56,7 +56,7 @@ Documentação interativa: `http://127.0.0.1:8000/docs`
 
 ## 6. Validação
 
-Todas as rotas foram testadas no Swagger antes e depois da refatoração, com o mesmo resultado.
+Todas as rotas foram testadas no Swagger antes e depois da refatoração, com o mesmo resultado. Os prints estão localizados na pasta (docs/prints).
 
 ## 7. Problemas encontrados
 
